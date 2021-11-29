@@ -1,0 +1,130 @@
+@charset "utf-8";
+
+body
+{
+	overflow-y: scroll;
+}
+
+body > div.container
+{
+	margin-bottom: 5rem !important;
+}
+
+form.scheduler
+{
+	max-width: 250px;
+	margin: 0 auto;
+}
+
+form.login,
+form.pw-forget,
+form.verify,
+form.resend,
+div.switch,
+div.activation,
+div.instructions
+{
+	max-width: 350px;
+	margin: 0 auto;
+}
+
+div.station-list div.card
+{
+	height: 100%;
+}
+
+div.alert ul:last-child
+{
+	margin-bottom: 0;
+}
+
+div.documents,
+div.tickets
+{
+	max-width: 500px;
+	margin: 0 auto;
+}
+
+form.account,
+form.register
+{
+	max-width: 600px;
+	margin: 0 auto;
+}
+
+div.reservation,
+div.current-ticket
+{
+	max-width: 600px;
+	margin: 0 auto;
+}
+
+ul.steps > li > a
+{
+	display: flex;
+	height: 100%;
+	align-items: center;
+	/*justify-content: center;*/
+	flex-direction: column;
+}
+
+h5.ticket-number
+{
+	font-size: 70pt;
+}
+
+.hr-legend
+{
+	display: block;
+	overflow: hidden;
+	text-align: center;
+	margin-top: var(--bs-gutter-y);
+	margin-right: calc(var(--bs-gutter-x)/ 2);
+	margin-left: calc(var(--bs-gutter-x)/ 2);
+	padding: 0;
+	width: calc(100% - var(--bs-gutter-x) );
+	color: #212529;
+}
+
+.hr-legend.space
+{
+	margin: 50px 0;
+}
+
+.hr-legend::before,
+.hr-legend::after
+{
+	background: #dee2e6;
+	content: ' ';
+	display: inline-block;
+	height: 1px;
+	position: relative;
+	vertical-align: middle;
+	width: 50%;
+	top: -1px;
+}
+
+.hr-legend::before
+{
+	right: 1em;
+	margin-left: -50%;
+}
+
+.hr-legend::after
+{
+	left: 1em;
+	margin-right: -50%;
+}
+
+select.phone-prefix
+{
+	flex: 0 0 90px !important;
+}
+
+@media (max-width: 576px)
+{
+	ul.steps
+	{
+		flex-direction: column;
+	}
+}

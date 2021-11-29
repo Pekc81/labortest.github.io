@@ -1,0 +1,202 @@
+var phonecodes = [];
+
+$(document)
+.ready(function()
+{
+	if( $('select.phone-prefix').length > 0 )
+	{
+		$('select.phone-prefix option').each(function()
+		{
+			if( $(this).val().length > 0 )
+			{
+				phonecodes.push( $(this).val() );
+			}
+		});
+
+		phonecodes = phonecodes.filter(function( item, pos )
+		{
+			return phonecodes.indexOf(item) == pos;
+		});
+		phonecodes = phonecodes.sort(function(a,b) { return a.length - b.length || a.localeCompare( b ) });
+	}
+
+	if( navigator.geolocation )
+	{
+		$('.geolocation').show();
+	}
+})
+.on('submit', 'form.needs-validation', function(e)
+{
+	$(this).find(':submit').next('div').hide();
+
+	$(this).find('select.no-disabled').each(function()
+	{
+		if( $(this).is(':disabled') || $(this).find('option:selected').is(':disabled') )
+		{
+			$(this).get(0).setCustomValidity('Field must not be disabled.');
+		}
+		else
+		{
+			$(this).get(0).setCustomValidity('');
+		}
+	});
+
+	if(!$(this).get(0).checkValidity())
+	{
+		e.preventDefault();
+		e.stopPropagation();
+
+		$(this).find(':submit').next('div').show();
+	}
+
+	$(this).addClass('was-validated');
+})
+.on('change', 'select#persons', function()
+{
+	var secs = $(this).find('option:selected').data('time');
+
+	$('div.approx-time').toggleClass( 'd-none', !secs );
+
+	if( secs )
+	{
+		$('div.approx-time').find('span').text( Math.ceil( parseInt( secs ) / 60 ) );
+	}
+})
+.on('keypress', 'input[type="tel"]', function(e)
+{
+	if( !/([0-9\+]+)/.test( e.key ) || ( e.key == '+' && $(this).get(0).selectionStart != 0 ) )
+	{
+		e.preventDefault();
+	}
+})
+.on('keypress', 'input[type="email"]', function(e)
+{
+	if( /\s/.test( e.key ) )
+	{
+		e.preventDefault();
+	}
+})
+.on('blur', 'input.phone-validate', function()
+{
+	var $phonePrefixes = $(this).prev('select');
+	var val = $(this).val();
+
+	if( val.startsWith( '00' ) || val.startsWith( '+' ) )
+	{
+		if( val.startsWith( '00' ) )
+		{
+			val = val.replace( '00', '+' );
+		}
+
+		$.each( phonecodes, function( i, v )
+		{
+			if( val.startsWith( v ) )
+			{
+				$phonePrefixes.val( v );
+				val = val.slice( v.length );
+				return false;
+			}
+		});
+	}
+	else if( val.startsWith('0') )
+	{
+		val = val.slice( 1 );
+	}
+
+	$(this).val( val );
+})
+.on('click', 'a.geolocation', function(e)
+{
+	if( navigator.geolocation )
+	{
+		navigator.geolocation.getCurrentPosition(function(position)
+		{
+			var lat = position.coords.latitude;
+			var lng = position.coords.longitude;
+
+			setCookie( 'lat', lat );
+			setCookie( 'lng', lng );
+
+			location.href = '/';
+		},
+		function() {},
+		{
+			enableHighAccuracy: true
+		});
+	}
+
+	e.preventDefault();
+})
+.on('click', '.goto', function()
+{
+	var url = $(this).data('url');
+
+	location.href = url;
+})
+.on('click', '.apply-for-everyone', function(e)
+{
+	var $form = $(this).parents('form');
+	var val = $form.find('select.applier').val();
+
+	if( val )
+	{
+		$form.find('select:not(.applier)').each(function()
+		{
+			$(this).val( val );
+		});
+	}
+
+	e.preventDefault();
+})
+.on('click', '.apply-contact-data', function(e)
+{
+	$mainperson = $('div#mainperson');
+
+	var email = $mainperson.find('input[type="email"]').val();
+	var phonePrefix = $mainperson.find('select.phone-prefix').val();
+	var phone = $mainperson.find('input[type="tel"]').val();
+
+	$(this).parents('div.detailbox').find('input[type="email"]').val( email );
+	$(this).parents('div.detailbox').find('select.phone-prefix').val( phonePrefix );
+	$(this).parents('div.detailbox').find('input[type="tel"]').val( phone );
+
+
+	e.preventDefault();
+})
+.on('click', '.apply-address-data', function(e)
+{
+	$mainperson = $('div#mainperson');
+
+	var street = $mainperson.find('input.street').val();
+	var streetNumber = $mainperson.find('input.street-number').val();
+	var postalcode = $mainperson.find('input.postalcode').val();
+	var city = $mainperson.find('input.city').val();
+	var countryID = $mainperson.find('select.country-id').val();
+
+	$(this).parents('div.detailbox').find('input.street').val( street );
+	$(this).parents('div.detailbox').find('input.street-number').val( streetNumber );
+	$(this).parents('div.detailbox').find('input.postalcode').val( postalcode );
+	$(this).parents('div.detailbox').find('input.city').val( city );
+	$(this).parents('div.detailbox').find('select.country-id').val( countryID );
+
+
+	e.preventDefault();
+});
+
+$('div#confirm').on('show.bs.modal', function(event)
+{
+	var title = $(event.relatedTarget).data('title');
+	var message = $(event.relatedTarget).data('message');
+	var url = $(event.relatedTarget).data('href');
+
+	$(this).find('.modal-title').text( title );
+	$(this).find('.modal-body').text( message );
+	$(this).find('.btn-primary').data( 'url', url );
+});
+
+function setCookie( name, value, days )
+{
+	var cd = new Date();
+	cd.setHours(cd.getHours() + 24 * days);
+	document.cookie = name + "="+value+";expires=" + cd.toUTCString() + ";path=/";
+}
